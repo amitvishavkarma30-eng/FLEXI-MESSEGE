@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlexiMessage — Schedule Sender</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ── */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#f0f4f0;
+  --s0:#ffffff;
+  --s1:#f7faf7;
+  --s2:#eef3ee;
+  --bd:#dde8dd;
+  --bd2:#ccdacc;
+  --teal:#1a9e6e;
+  --teal-d:#147a54;
+  --teal-l:#e6f7f1;
+  --teal-g:rgba(26,158,110,.15);
+  --amber:#f59e0b;
+  --rose:#f43f5e;
+  --sky:#0ea5e9;
+  --ink:#1a2e1a;
+  --t2:#4a6a4a;
+  --t3:#7a9a7a;
+  --t4:#aac0aa;
+  --wa:#25d366;
+  --wa-d:#128c4e;
+}
+html,body{
+  min-height:100vh;background:var(--bg);color:var(--ink);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;
+}
+
+/* ── HEADER ── */
+#hdr{
+  background:var(--s0);border-bottom:1px solid var(--bd);
+  height:56px;display:flex;align-items:center;padding:0 20px;gap:12px;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 8px rgba(0,0,0,.06);
+}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-ic{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--teal),var(--teal-d));
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+  box-shadow:0 2px 10px var(--teal-g);
+}
+.logo-name{font-weight:800;font-size:17px;letter-spacing:-.4px;color:var(--ink);}
+.logo-name span{color:var(--teal);}
+.logo-tag{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--t3);background:var(--s2);padding:3px 8px;border-radius:4px;border:1px solid var(--bd);}
+.hdr-r{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.hbtn{
+  height:32px;padding:0 14px;border-radius:7px;border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:600;
+  transition:all .15s;display:flex;align-items:center;gap:5px;
+}
+.hbtn-ghost{background:var(--s2);color:var(--t2);border:1px solid var(--bd);}
+.hbtn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.hbtn-teal{background:var(--teal);color:#fff;box-shadow:0 2px 8px var(--teal-g);}
+.hbtn-teal:hover{background:var(--teal-d);transform:translateY(-1px);}
+
+/* ── LAYOUT ── */
+#app{display:grid;grid-template-columns:320px 1fr 340px;height:calc(100vh - 56px);overflow:hidden;}
+
+/* ── SIDE PANELS ── */
+.side{overflow-y:auto;height:100%;}
+.side::-webkit-scrollbar{width:4px;}
+.side::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+.side-l{background:var(--s0);border-right:1px solid var(--bd);}
+.side-r{background:var(--s0);border-left:1px solid var(--bd);}
+
+/* ── SECTION HEADERS ── */
+.sec-hd{
+  padding:14px 16px 10px;display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--bd);background:var(--s1);position:sticky;top:0;z-index:10;
+}
+.sec-hd-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);}
+.sec-hd-title span{color:var(--teal);}
+.sec-hd-r{margin-left:auto;}
+
+/* ── FORM STUFF ── */
+.block{padding:14px 16px;border-bottom:1px solid var(--bd);}
+.block:last-child{border-bottom:none;}
+.block-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.block-title::after{content:'';flex:1;height:1px;background:var(--bd);}
+
+.fld{margin-bottom:9px;}
+.fld:last-child{margin-bottom:0;}
+.lbl{display:block;font-size:11.5px;font-weight:600;color:var(--t2);margin-bottom:4px;}
+.lbl small{font-weight:400;color:var(--t3);font-size:10.5px;}
+.inp,.sel,.ta{
+  width:100%;padding:8px 10px;background:var(--s1);
+  border:1.5px solid var(--bd);color:var(--ink);
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;
+  border-radius:7px;outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-g);}
+.inp::placeholder,.ta::placeholder{color:var(--t4);}
+.ta{resize:vertical;line-height:1.6;}
+.sel{cursor:pointer;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='5' fill='%237a9a7a'%3E%3Cpath d='M0 0l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 9px center;padding-right:26px;background-color:var(--s1);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* ── BUTTONS ── */
+.btn{
+  padding:8px 14px;border-radius:7px;border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:700;
+  transition:all .15s;display:inline-flex;align-items:center;gap:5px;
+}
+.btn-teal{background:var(--teal);color:#fff;box-shadow:0 2px 8px var(--teal-g);}
+.btn-teal:hover{background:var(--teal-d);}
+.btn-outline{background:var(--s1);color:var(--t2);border:1.5px solid var(--bd);}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal);}
+.btn-rose{background:#fff0f3;color:var(--rose);border:1.5px solid #fecdd3;}
+.btn-rose:hover{background:#fee2e8;}
+.btn-wa{background:var(--wa);color:#fff;}
+.btn-wa:hover{background:var(--wa-d);}
+.btn-sm{padding:5px 10px;font-size:11.5px;border-radius:5px;}
+.btn-full{width:100%;justify-content:center;}
+
+/* ── CLIENT CARDS ── */
+.client-card{
+  padding:10px 12px;margin:6px;border-radius:9px;
+  background:var(--s1);border:1.5px solid var(--bd);
+  cursor:pointer;transition:all .15s;position:relative;
+}
+.client-card:hover{border-color:var(--teal);background:var(--teal-l);}
+.client-card.active{border-color:var(--teal);background:var(--teal-l);box-shadow:0 0 0 1px var(--teal);}
+.cc-name{font-weight:700;font-size:13px;color:var(--ink);margin-bottom:2px;}
+.cc-info{font-size:11.5px;color:var(--t3);}
+.cc-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;opacity:0;transition:.15s;}
+.client-card:hover .cc-actions{opacity:1;}
+.cc-act{padding:3px 7px;border-radius:4px;border:none;cursor:pointer;font-size:10.5px;font-weight:600;transition:.13s;}
+.cc-edit{background:var(--s2);color:var(--t2);}
+.cc-edit:hover{color:var(--teal);}
+.cc-del{background:#fee2e8;color:var(--rose);}
+.cc-del:hover{background:#fecdd3;}
+
+/* ── SCHEDULE ROWS ── */
+.sched-row{
+  margin:6px;padding:12px 14px;border-radius:10px;
+  background:var(--s1);border:1.5px solid var(--bd);
+  position:relative;transition:all .15s;
+}
+.sched-row:hover{border-color:var(--bd2);}
+.sr-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.sr-num{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--teal);color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.sr-name{font-weight:700;font-size:13.5px;color:var(--ink);flex:1;}
+.sr-del{background:none;border:none;cursor:pointer;color:var(--t4);font-size:16px;transition:.13s;padding:2px;}
+.sr-del:hover{color:var(--rose);}
+.sr-fields{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.sr-note{grid-column:1/-1;}
+.sr-preset-tag{
+  font-size:10px;font-weight:700;letter-spacing:.5px;
+  padding:2px 7px;border-radius:3px;background:var(--teal-l);
+  color:var(--teal);border:1px solid rgba(26,158,110,.2);
+}
+
+/* ── CENTER: PREVIEW ── */
+#center{
+  background:var(--bg);overflow-y:auto;display:flex;flex-direction:column;
+  padding:20px;gap:12px;
+}
+#center::-webkit-scrollbar{width:4px;}
+#center::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+
+.preview-card{
+  background:var(--s0);border-radius:12px;border:1px solid var(--bd);
+  overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05);
+  animation:slideIn .2s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.pc-head{
+  padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:8px;
+}
+.pc-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,var(--teal),#0d7a50);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:800;color:#fff;flex-shrink:0;
+}
+.pc-name{font-weight:700;font-size:13px;color:var(--ink);}
+.pc-type{font-size:10.5px;color:var(--t3);}
+.pc-acts{margin-left:auto;display:flex;gap:6px;}
+
+/* WhatsApp bubble style */
+.pc-bubble{
+  margin:14px;padding:12px 14px;
+  background:#e7ffdb;border-radius:0 10px 10px 10px;
+  border:1px solid #c3e6c3;position:relative;
+  font-size:13.5px;line-height:1.7;color:#1a2e1a;
+  font-family:'Plus Jakarta Sans',sans-serif;white-space:pre-wrap;word-break:break-word;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);
+  min-height:60px;
+}
+.pc-bubble::before{
+  content:'';position:absolute;top:0;left:-8px;
+  border-right:8px solid #e7ffdb;border-top:8px solid transparent;
+}
+.pc-time{text-align:right;font-size:10px;color:var(--t3);padding:0 14px 10px;margin-top:-6px;}
+
+/* Empty state */
+.empty-state{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:40px;color:var(--t3);
+}
+.empty-icon{font-size:52px;margin-bottom:14px;opacity:.5;}
+.empty-title{font-size:16px;font-weight:700;color:var(--t2);margin-bottom:6px;}
+.empty-sub{font-size:13px;line-height:1.6;}
+
+/* ── RIGHT: TEMPLATE PANEL ── */
+.template-preview{
+  margin:10px;padding:14px;border-radius:10px;
+  background:var(--teal-l);border:1.5px solid rgba(26,158,110,.25);
+  font-size:12.5px;line-height:1.7;color:var(--ink);white-space:pre-wrap;
+  font-family:'JetBrains Mono',monospace;word-break:break-word;
+}
+.var-chip{
+  display:inline-block;padding:1px 6px;border-radius:4px;
+  background:rgba(26,158,110,.15);color:var(--teal);
+  font-size:11px;font-weight:700;border:1px solid rgba(26,158,110,.3);
+}
+
+/* Preset list right */
+.preset-item{
+  margin:5px 8px;padding:9px 12px;border-radius:8px;
+  background:var(--s1);border:1px solid var(--bd);
+  cursor:pointer;transition:all .13s;
+}
+.preset-item:hover{border-color:var(--teal);background:var(--teal-l);}
+.pi-name{font-weight:700;font-size:12.5px;color:var(--ink);}
+.pi-preview{font-size:11px;color:var(--t3);margin-top:2px;font-family:'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* Tab system */
+.tabs{display:flex;border-bottom:1px solid var(--bd);background:var(--s1);}
+.tab{flex:1;padding:10px 8px;font-size:11px;font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--t3);background:none;border:none;cursor:pointer;
+  border-bottom:2px solid transparent;transition:all .15s;}
+.tab.on{color:var(--teal);border-bottom-color:var(--teal);background:var(--s0);}
+
+/* Count badge */
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:18px;height:18px;padding:0 5px;border-radius:9px;
+  background:var(--teal);color:#fff;font-size:10px;font-weight:700;
+}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);
+  background:#1a2e1a;color:#fff;padding:10px 20px;border-radius:20px;
+  font-size:13px;font-weight:600;z-index:999;opacity:0;
+  transition:all .25s;pointer-events:none;white-space:nowrap;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* Modal */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg.show{display:flex;}
+.modal{
+  background:var(--s0);border-radius:14px;width:100%;max-width:440px;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;
+}
+.modal-h{
+  padding:16px 20px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:10px;
+}
+.modal-title{font-weight:800;font-size:15px;color:var(--ink);}
+.modal-close{margin-left:auto;background:none;border:none;cursor:pointer;
+  font-size:20px;color:var(--t3);line-height:1;padding:2px;}
+.modal-b{padding:18px 20px;}
+.modal-f{padding:12px 20px;border-top:1px solid var(--bd);display:flex;gap:8px;justify-content:flex-end;}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+
+/* Responsive */
+@media(max-width:900px){
+  #app{grid-template-columns:280px 1fr;height:auto;overflow:visible;}
+  .side-r{display:none;}
+}
+@media(max-width:600px){
+  #app{grid-template-columns:1fr;height:auto;}
+  .side-l{border-right:none;border-bottom:1px solid var(--bd);}
+  #center{min-height:400px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div class="logo">
+    <div class="logo-ic">📨</div>
+    <div class="logo-name">Flexi<span>Message</span></div>
+    <div class="logo-tag">Schedule Sender</div>
+  </div>
+  <div class="hdr-r">
+    <button class="hbtn hbtn-ghost" onclick="exportAll()">⬇ Export All</button>
+    <button class="hbtn hbtn-teal" onclick="copyAll()">📋 Copy All Messages</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <!-- LEFT: CLIENTS + SCHEDULE BUILDER -->
+  <div class="side side-l">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab on" onclick="lTab(0,this)">📅 Schedule</button>
+      <button class="tab" onclick="lTab(1,this)">👥 Clients</button>
+    </div>
+
+    <!-- TAB 0: SCHEDULE BUILDER -->
+    <div id="LT0">
+
+      <!-- Event Word -->
+      <div class="block">
+        <div class="block-title">Event Settings</div>
+        <div class="fld">
+          <label class="lbl">Event Word <small>(e.g. Meeting, Session, Class, Call)</small></label>
+          <input class="inp" id="eventWord" value="Meeting" placeholder="Meeting" oninput="R()">
+        </div>
+      </div>
+
+      <!-- People -->
+      <div class="block">
+        <div class="block-title">People <span id="personCount" class="badge" style="margin-left:4px;">0</span></div>
+        <div id="personList" style="margin-bottom:10px;"></div>
+        <div style="display:flex;gap:7px;">
+          <button class="btn btn-teal btn-sm" onclick="addPerson()" style="flex:1;justify-content:center;">+ Add Person</button>
+          <button class="btn btn-outline btn-sm" onclick="openClientPicker()" title="Pick from saved clients">👥 From Clients</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 1: CLIENTS -->
+    <div id="LT1" style="display:none;">
+      <div class="block" style="padding:10px 12px;">
+        <button class="btn btn-teal btn-full" onclick="openClientModal()">+ New Client Preset</button>
+      </div>
+      <div id="clientList" style="padding:4px 0;"></div>
+      <div class="empty-state" id="clientEmpty" style="padding:30px;flex:none;">
+        <div style="font-size:36px;margin-bottom:8px;">👥</div>
+        <div style="font-weight:700;color:var(--t2);margin-bottom:4px;">No clients yet</div>
+        <div style="font-size:12px;color:var(--t3);">Save client details as presets to reuse them quickly</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: LIVE PREVIEW -->
+  <div id="center">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">📨</div>
+      <div class="empty-title">Your messages will appear here</div>
+      <div class="empty-sub">Add people to the schedule on the left.<br>Messages update live as you type.</div>
+    </div>
+    <div id="previewList" style="display:contents;"></div>
+  </div>
+
+  <!-- RIGHT: TEMPLATE BUILDER -->
+  <div class="side side-r">
+    <div class="sec-hd">
+      <div class="sec-hd-title">Message <span>Template</span></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab on" onclick="rTab(0,this)">Template</button>
+      <button class="tab" onclick="rTab(1,this)">Presets</button>
+    </div>
+
+    <div id="RT0">
+      <!-- Header -->
+      <div class="block">
+        <div class="block-title">Header</div>
+        <div class="fld">
+          <textarea class="ta" id="msgHeader" rows="3" placeholder="e.g. Dear {name}, Hope you are doing well! 🙏" oninput="R()"></textarea>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="block">
+        <div class="block-title">Body <small style="font-size:10px;color:var(--t3);font-weight:400;">use {variables}</small></div>
+        <div style="margin-bottom:8px;display:flex;flex-wrap:wrap;gap:5px;">
+          <span class="var-chip" onclick="insertVar('{name}')" title="Click to insert" style="cursor:pointer;">{name}</span>
+          <span class="var-chip" onclick="insertVar('{date}')" title="Click to insert" style="cursor:pointer;">{date}</span>
+          <span class="var-chip" onclick="insertVar('{time}')" title="Click to insert" style="cursor:pointer;">{time}</span>
+          <span class="var-chip" onclick="insertVar('{event}')" title="Click to insert" style="cursor:pointer;">{event}</span>
+          <span class="var-chip" onclick="insertVar('{location}')" title="Click to insert" style="cursor:pointer;">{location}</span>
+          <span class="var-chip" onclick="insertVar('{note}')" title="Click to insert" style="cursor:pointer;">{note}</span>
+        </div>
+        <div class="fld">
+          <textarea class="ta" id="msgBody" rows="5" placeholder="Your {event} is scheduled for {date} at {time}.&#10;Location: {location}" oninput="R()"></textarea>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="block">
+        <div class="block-title">Footer</div>
+        <div class="fld">
+          <textarea class="ta" id="msgFooter" rows="3" placeholder="e.g. Please confirm your attendance. Thank you! 🙏" oninput="R()"></textarea>
+        </div>
+      </div>
+
+      <!-- Quick defaults -->
+      <div class="block">
+        <div class="block-title">Quick Templates</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button class="btn btn-outline btn-full btn-sm" onclick="applyQT('meeting')">📅 Business Meeting</button>
+          <button class="btn btn-outline btn-full btn-sm" onclick="applyQT('class')">📚 Class / Session</button>
+          <button class="btn btn-outline btn-full btn-sm" onclick="applyQT('reminder')">⏰ Gentle Reminder</button>
+          <button class="btn btn-outline btn-full btn-sm" onclick="applyQT('interview')">💼 Job Interview</button>
+          <button class="btn btn-outline btn-full btn-sm" onclick="applyQT('followup')">✅ Follow-up / Confirm</button>
+        </div>
+      </div>
+
+      <!-- Save as preset -->
+      <div class="block">
+        <div class="fld">
+          <label class="lbl">Save This Template As Preset</label>
+          <input class="inp" id="presetName" placeholder="e.g. Weekly Meeting Template">
+        </div>
+        <button class="btn btn-teal btn-full" onclick="savePreset()">💾 Save as Preset</button>
+      </div>
+    </div>
+
+    <!-- PRESETS LIST -->
+    <div id="RT1" style="display:none;">
+      <div class="block" style="padding:10px 12px;">
+        <div style="font-size:11.5px;color:var(--t3);margin-bottom:8px;">Click a preset to load its template</div>
+      </div>
+      <div id="presetList" style="padding-bottom:10px;"></div>
+      <div id="presetEmpty" style="padding:20px;text-align:center;color:var(--t3);font-size:12.5px;">
+        No presets saved yet.<br>Create one from the Template tab.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- CLIENT MODAL -->
+<div class="modal-bg" id="clientModal">
+  <div class="modal">
+    <div class="modal-h">
+      <div class="modal-title" id="clientModalTitle">New Client Preset</div>
+      <button class="modal-close" onclick="closeModal('clientModal')">×</button>
+    </div>
+    <div class="modal-b">
+      <div class="fld"><label class="lbl">Full Name *</label><input class="inp" id="cm_name" placeholder="e.g. Priya Sharma"></div>
+      <div class="fld"><label class="lbl">Phone / WhatsApp</label><input class="inp" id="cm_phone" placeholder="+91 98765 43210" type="tel"></div>
+      <div class="fld"><label class="lbl">Email</label><input class="inp" id="cm_email" placeholder="priya@example.com" type="email"></div>
+      <div class="fld"><label class="lbl">Default Location / Platform</label><input class="inp" id="cm_location" placeholder="e.g. Zoom, Room 3, Google Meet..."></div>
+      <div class="fld"><label class="lbl">Notes</label><textarea class="ta" id="cm_notes" rows="2" placeholder="Any default notes for this client"></textarea></div>
+      <div class="fld"><label class="lbl">Tags <small>(comma separated)</small></label><input class="inp" id="cm_tags" placeholder="e.g. VIP, Design Client, Regular"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-outline" onclick="closeModal('clientModal')">Cancel</button>
+      <button class="btn btn-teal" onclick="saveClient()">💾 Save Client</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT PICKER MODAL -->
+<div class="modal-bg" id="pickerModal">
+  <div class="modal">
+    <div class="modal-h">
+      <div class="modal-title">Add from Client List</div>
+      <button class="modal-close" onclick="closeModal('pickerModal')">×</button>
+    </div>
+    <div class="modal-b" style="padding:10px;">
+      <input class="inp" id="pickerSearch" placeholder="🔍 Search clients…" oninput="renderPicker()" style="margin-bottom:10px;">
+      <div id="pickerList" style="max-height:300px;overflow-y:auto;"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn btn-outline" onclick="closeModal('pickerModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const G=id=>document.getElementById(id);
+/* ════════════════════════════════════════
+   STATE & STORAGE
+════════════════════════════════════════ */
+let persons=[]; // [{id,name,date,time,location,note}]
+let clients=[]; // saved client presets
+let templatePresets=[]; // saved message templates
+let editingClientId=null;
+let bodyFocused=true; // track which textarea to insert var into
+
+const STORE={
+  load(){
+    clients=JSON.parse(localStorage.getItem('fm_clients')||'[]');
+    templatePresets=JSON.parse(localStorage.getItem('fm_presets')||'[]');
+    const saved=JSON.parse(localStorage.getItem('fm_template')||'{}');
+    if(saved.header!==undefined) G('msgHeader').value=saved.header;
+    if(saved.body!==undefined)   G('msgBody').value=saved.body;
+    if(saved.footer!==undefined) G('msgFooter').value=saved.footer;
+    if(saved.eventWord)          G('eventWord').value=saved.eventWord;
+  },
+  saveTemplate(){
+    localStorage.setItem('fm_template',JSON.stringify({
+      header:G('msgHeader').value,
+      body:G('msgBody').value,
+      footer:G('msgFooter').value,
+      eventWord:G('eventWord').value,
+    }));
+  },
+  saveClients(){localStorage.setItem('fm_clients',JSON.stringify(clients));},
+  savePresets(){localStorage.setItem('fm_presets',JSON.stringify(templatePresets));},
+};
+
+/* ════════════════════════════════════════
+   QUICK TEMPLATES
+════════════════════════════════════════ */
+const QT={
+  meeting:{
+    word:'Meeting',
+    header:'Dear {name},\n\nGreetings! 🙏',
+    body:'This is to inform you that your {event} has been scheduled.\n\n📅 Date: {date}\n⏰ Time: {time}\n📍 Location: {location}\n\n📝 Note: {note}',
+    footer:'Kindly confirm your attendance.\n\nThank you!\nLooking forward to seeing you. 😊',
+  },
+  class:{
+    word:'Session',
+    header:'Hello {name},',
+    body:'Your {event} details are as follows:\n\n🗓 Date: {date}\n🕐 Time: {time}\n📍 Venue: {location}\n\n💬 {note}',
+    footer:'Please be on time. If you need to reschedule, kindly let us know 24 hours in advance.\n\nSee you soon! ✨',
+  },
+  reminder:{
+    word:'Appointment',
+    header:'Hi {name}! 👋',
+    body:'⏰ Friendly reminder about your upcoming {event}:\n\n📅 {date} at {time}\n📍 {location}\n\n{note}',
+    footer:'If you have any questions, feel free to reach out!\n\nThank you 🙏',
+  },
+  interview:{
+    word:'Interview',
+    header:'Dear {name},\n\nThank you for your interest! We are pleased to invite you for an interview.',
+    body:'📋 {event} Details:\n\n📅 Date: {date}\n⏰ Time: {time}\n📍 Venue: {location}\n\n{note}\n\nPlease carry a copy of your resume and any relevant documents.',
+    footer:'We look forward to meeting you.\n\nBest regards 🤝',
+  },
+  followup:{
+    word:'Meeting',
+    header:'Hi {name},',
+    body:'Just following up to confirm your {event} on {date} at {time}.\n\n📍 {location}\n\n{note}',
+    footer:'Please reply YES to confirm or let us know if you need to reschedule.\n\nThank you! 🙏',
+  },
+};
+
+function applyQT(key){
+  const t=QT[key];
+  G('eventWord').value=t.word;
+  G('msgHeader').value=t.header;
+  G('msgBody').value=t.body;
+  G('msgFooter').value=t.footer;
+  STORE.saveTemplate();R();
+  toast('✅ Template applied!');
+}
+
+/* ════════════════════════════════════════
+   PERSONS (SCHEDULE ROWS)
+════════════════════════════════════════ */
+let personIdCounter=1;
+
+function addPerson(preset=null){
+  const id=personIdCounter++;
+  const p={
+    id,
+    name:preset?.name||'',
+    phone:preset?.phone||'',
+    date:'',time:'',
+    location:preset?.location||'',
+    note:preset?.notes||'',
+    fromPreset:preset?.name||null,
+  };
+  persons.push(p);
+  renderPersons();
+  // Focus name if new blank
+  if(!preset) setTimeout(()=>{const el=G('pname_'+id);if(el)el.focus();},50);
+  R();
+}
+
+function removePerson(id){
+  persons=persons.filter(p=>p.id!==id);
+  renderPersons();R();
+}
+
+function renderPersons(){
+  const list=G('personList');list.innerHTML='';
+  G('personCount').textContent=persons.length;
+  persons.forEach((p,i)=>{
+    const row=document.createElement('div');
+    row.className='sched-row';
+    row.id='sr_'+p.id;
+    row.innerHTML=`
+      <div class="sr-top">
+        <div class="sr-num">${i+1}</div>
+        <input class="inp" id="pname_${p.id}" value="${escH(p.name)}" placeholder="Person name…"
+          oninput="update(${p.id},'name',this.value)" style="flex:1;padding:5px 8px;font-size:12.5px;font-weight:600;">
+        ${p.fromPreset?`<span class="sr-preset-tag">📌 ${escH(p.fromPreset)}</span>`:''}
+        <button class="sr-del" onclick="removePerson(${p.id})" title="Remove">×</button>
+      </div>
+      <div class="sr-fields">
+        <div class="fld" style="margin:0;">
+          <label class="lbl" style="font-size:10px;">📅 Date</label>
+          <input class="inp" type="date" id="pdate_${p.id}" value="${p.date}"
+            oninput="update(${p.id},'date',this.value)" style="font-size:12px;padding:6px 8px;">
+        </div>
+        <div class="fld" style="margin:0;">
+          <label class="lbl" style="font-size:10px;">⏰ Time</label>
+          <input class="inp" type="time" id="ptime_${p.id}" value="${p.time}"
+            oninput="update(${p.id},'time',this.value)" style="font-size:12px;padding:6px 8px;">
+        </div>
+        <div class="fld sr-note" style="margin:0;">
+          <label class="lbl" style="font-size:10px;">📍 Location</label>
+          <input class="inp" id="ploc_${p.id}" value="${escH(p.location)}" placeholder="Zoom / Room / Address…"
+            oninput="update(${p.id},'location',this.value)" style="font-size:12px;padding:6px 8px;">
+        </div>
+        <div class="fld sr-note" style="margin:0;">
+          <label class="lbl" style="font-size:10px;">📝 Note</label>
+          <input class="inp" id="pnote_${p.id}" value="${escH(p.note)}" placeholder="Optional note…"
+            oninput="update(${p.id},'note',this.value)" style="font-size:12px;padding:6px 8px;">
+        </div>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function update(id,field,val){
+  const p=persons.find(x=>x.id===id);
+  if(p){p[field]=val;R();}
+}
+
+/* ════════════════════════════════════════
+   MESSAGE BUILDER
+════════════════════════════════════════ */
+function buildMessage(p){
+  const header=G('msgHeader').value;
+  const body=G('msgBody').value;
+  const footer=G('msgFooter').value;
+  const eventWord=G('eventWord').value||'Meeting';
+
+  const fmtDate=p.date?new Date(p.date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'(date not set)';
+  const fmtTime=p.time?formatTime12(p.time):'(time not set)';
+
+  const fill=s=>s
+    .replace(/\{name\}/gi,p.name||'(name)')
+    .replace(/\{date\}/gi,fmtDate)
+    .replace(/\{time\}/gi,fmtTime)
+    .replace(/\{event\}/gi,eventWord)
+    .replace(/\{location\}/gi,p.location||'(location)')
+    .replace(/\{note\}/gi,p.note||'');
+
+  const parts=[];
+  if(header.trim()) parts.push(fill(header));
+  if(body.trim())   parts.push(fill(body));
+  if(footer.trim()) parts.push(fill(footer));
+  return parts.join('\n\n');
+}
+
+function formatTime12(t){
+  if(!t)return'';
+  const [h,m]=t.split(':').map(Number);
+  const ampm=h>=12?'PM':'AM';
+  const h12=h%12||12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+
+/* ════════════════════════════════════════
+   RENDER PREVIEW
+════════════════════════════════════════ */
+function R(){
+  STORE.saveTemplate();
+  const list=G('previewList');list.innerHTML='';
+  const empty=G('emptyState');
+
+  if(persons.length===0){
+    empty.style.display='flex';list.style.display='none';
+    return;
+  }
+  empty.style.display='none';list.style.display='contents';
+
+  persons.forEach(p=>{
+    const msg=buildMessage(p);
+    const initials=(p.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'?';
+    const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+    const card=document.createElement('div');
+    card.className='preview-card';
+    card.innerHTML=`
+      <div class="pc-head">
+        <div class="pc-avatar">${escH(initials)}</div>
+        <div>
+          <div class="pc-name">${escH(p.name||'(no name)')}</div>
+          <div class="pc-type">${escH(p.phone||'— no phone —')}</div>
+        </div>
+        <div class="pc-acts">
+          <button class="btn btn-outline btn-sm" onclick="copyOne(${p.id})" title="Copy message">📋 Copy</button>
+          ${p.phone?`<button class="btn btn-wa btn-sm" onclick="openWA('${escH(p.phone)}',${p.id})" title="Open in WhatsApp">💬 WA</button>`:''}
+        </div>
+      </div>
+      <div class="pc-bubble" id="bubble_${p.id}">${escH(msg)||'<span style="color:#aaa;font-style:italic;">(template is empty — add content in the right panel)</span>'}</div>
+      <div class="pc-time">${now} ✓✓</div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function copyOne(id){
+  const p=persons.find(x=>x.id===id);
+  if(!p)return;
+  navigator.clipboard.writeText(buildMessage(p)).then(()=>toast('✅ Message copied!'));
+}
+
+function openWA(phone,id){
+  const p=persons.find(x=>x.id===id);
+  if(!p)return;
+  const msg=encodeURIComponent(buildMessage(p));
+  const clean=phone.replace(/\D/g,'');
+  window.open(`https://wa.me/${clean}?text=${msg}`,'_blank');
+}
+
+function copyAll(){
+  if(persons.length===0){toast('⚠ No people added yet!');return;}
+  const all=persons.map(p=>`— ${p.name||'(name)'} —\n${buildMessage(p)}`).join('\n\n'+('─'.repeat(30))+'\n\n');
+  navigator.clipboard.writeText(all).then(()=>toast(`✅ All ${persons.length} messages copied!`));
+}
+
+function exportAll(){
+  if(persons.length===0){toast('⚠ No people added yet!');return;}
+  const all=persons.map(p=>`${'═'.repeat(40)}\n${p.name||'(name)'} | ${p.date||'No date'} | ${p.phone||'No phone'}\n${'═'.repeat(40)}\n${buildMessage(p)}`).join('\n\n\n');
+  const blob=new Blob([all],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`FlexiMessage_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+  toast('⬇ Schedule exported!');
+}
+
+/* ════════════════════════════════════════
+   CLIENTS
+════════════════════════════════════════ */
+let clientIdCounter=1;
+
+function openClientModal(editId=null){
+  editingClientId=editId;
+  const c=editId?clients.find(x=>x.id===editId):null;
+  G('clientModalTitle').textContent=c?'Edit Client':'New Client Preset';
+  G('cm_name').value=c?.name||'';
+  G('cm_phone').value=c?.phone||'';
+  G('cm_email').value=c?.email||'';
+  G('cm_location').value=c?.location||'';
+  G('cm_notes').value=c?.notes||'';
+  G('cm_tags').value=c?.tags||'';
+  G('clientModal').classList.add('show');
+  setTimeout(()=>G('cm_name').focus(),100);
+}
+
+function saveClient(){
+  const name=G('cm_name').value.trim();
+  if(!name){G('cm_name').style.borderColor='var(--rose)';setTimeout(()=>G('cm_name').style.borderColor='',1500);return;}
+  if(editingClientId){
+    const c=clients.find(x=>x.id===editingClientId);
+    if(c){Object.assign(c,{name,phone:G('cm_phone').value.trim(),email:G('cm_email').value.trim(),location:G('cm_location').value.trim(),notes:G('cm_notes').value.trim(),tags:G('cm_tags').value.trim()});}
+  } else {
+    clients.push({id:clientIdCounter++,name,phone:G('cm_phone').value.trim(),email:G('cm_email').value.trim(),location:G('cm_location').value.trim(),notes:G('cm_notes').value.trim(),tags:G('cm_tags').value.trim()});
+  }
+  STORE.saveClients();
+  closeModal('clientModal');
+  renderClients();
+  toast('✅ Client saved!');
+}
+
+function deleteClient(id){
+  if(!confirm('Delete this client preset?'))return;
+  clients=clients.filter(c=>c.id!==id);
+  STORE.saveClients();renderClients();toast('🗑 Client deleted');
+}
+
+function renderClients(){
+  const list=G('clientList');list.innerHTML='';
+  const empty=G('clientEmpty');
+  if(clients.length===0){empty.style.display='flex';return;}
+  empty.style.display='none';
+  clients.forEach(c=>{
+    const card=document.createElement('div');
+    card.className='client-card';
+    card.onclick=(e)=>{if(!e.target.closest('.cc-actions'))addPerson(c);};
+    card.innerHTML=`
+      <div class="cc-name">${escH(c.name)} ${c.tags?`<span style="font-size:10px;font-weight:500;color:var(--t3);">${escH(c.tags)}</span>`:''}</div>
+      <div class="cc-info">${[c.phone,c.email,c.location].filter(Boolean).join(' · ')||'No contact info'}</div>
+      ${c.notes?`<div class="cc-info" style="margin-top:2px;font-style:italic;">${escH(c.notes.slice(0,50))}${c.notes.length>50?'…':''}</div>`:''}
+      <div class="cc-actions">
+        <button class="cc-act cc-edit" onclick="openClientModal(${c.id})">✏ Edit</button>
+        <button class="cc-act cc-del" onclick="deleteClient(${c.id})">🗑</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+/* Client picker */
+function openClientPicker(){
+  if(clients.length===0){toast('⚠ No saved clients yet. Add some in the Clients tab!');return;}
+  G('pickerSearch').value='';
+  renderPicker();
+  G('pickerModal').classList.add('show');
+}
+
+function renderPicker(){
+  const q=G('pickerSearch').value.toLowerCase();
+  const filtered=clients.filter(c=>c.name.toLowerCase().includes(q)||(c.tags||'').toLowerCase().includes(q));
+  const list=G('pickerList');list.innerHTML='';
+  filtered.forEach(c=>{
+    const item=document.createElement('div');
+    item.className='client-card';item.style.margin='4px';
+    item.innerHTML=`<div class="cc-name">${escH(c.name)}</div><div class="cc-info">${[c.phone,c.location].filter(Boolean).join(' · ')||'—'}</div>`;
+    item.onclick=()=>{addPerson(c);lTab(0,document.querySelector('.tab'));closeModal('pickerModal');toast('✅ Added: '+c.name);};
+    list.appendChild(item);
+  });
+  if(!filtered.length) list.innerHTML='<div style="padding:16px;text-align:center;color:var(--t3);font-size:12.5px;">No clients match your search</div>';
+}
+
+/* ════════════════════════════════════════
+   TEMPLATE PRESETS
+════════════════════════════════════════ */
+let presetIdCounter=1;
+
+function savePreset(){
+  const name=G('presetName').value.trim();
+  if(!name){G('presetName').style.borderColor='var(--rose)';setTimeout(()=>G('presetName').style.borderColor='',1500);toast('⚠ Enter a preset name first!');return;}
+  templatePresets.push({
+    id:presetIdCounter++,
+    name,
+    eventWord:G('eventWord').value,
+    header:G('msgHeader').value,
+    body:G('msgBody').value,
+    footer:G('msgFooter').value,
+  });
+  STORE.savePresets();
+  G('presetName').value='';
+  renderPresets();
+  toast('✅ Preset "'+name+'" saved!');
+}
+
+function loadPreset(id){
+  const p=templatePresets.find(x=>x.id===id);
+  if(!p)return;
+  G('eventWord').value=p.eventWord||'Meeting';
+  G('msgHeader').value=p.header||'';
+  G('msgBody').value=p.body||'';
+  G('msgFooter').value=p.footer||'';
+  STORE.saveTemplate();R();
+  rTab(0,document.querySelectorAll('.side-r .tab')[0]);
+  toast('✅ Preset "'+p.name+'" loaded!');
+}
+
+function deletePreset(id){
+  if(!confirm('Delete this preset?'))return;
+  templatePresets=templatePresets.filter(x=>x.id!==id);
+  STORE.savePresets();renderPresets();toast('🗑 Preset deleted');
+}
+
+function renderPresets(){
+  const list=G('presetList');list.innerHTML='';
+  const empty=G('presetEmpty');
+  if(templatePresets.length===0){empty.style.display='block';return;}
+  empty.style.display='none';
+  templatePresets.forEach(p=>{
+    const item=document.createElement('div');
+    item.className='preset-item';
+    item.innerHTML=`
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="flex:1;">
+          <div class="pi-name">${escH(p.name)}</div>
+          <div class="pi-preview">${escH((p.header||p.body||'(empty)').replace(/\n/g,' '))}</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="loadPreset(${p.id});event.stopPropagation();">Load</button>
+        <button class="btn btn-rose btn-sm" onclick="deletePreset(${p.id});event.stopPropagation();" style="padding:5px 8px;">🗑</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+/* ════════════════════════════════════════
+   INSERT VARIABLE
+════════════════════════════════════════ */
+function insertVar(v){
+  // Insert into whichever textarea was last focused
+  const targets=[G('msgHeader'),G('msgBody'),G('msgFooter')];
+  // Find last focused
+  let target=G('msgBody'); // default
+  targets.forEach(t=>{if(t===document.activeElement)target=t;});
+  const s=target.selectionStart,e=target.selectionEnd;
+  target.value=target.value.slice(0,s)+v+target.value.slice(e);
+  target.selectionStart=target.selectionEnd=s+v.length;
+  target.focus();
+  STORE.saveTemplate();R();
+}
+
+/* ════════════════════════════════════════
+   TABS
+════════════════════════════════════════ */
+function lTab(i,el){
+  [G('LT0'),G('LT1')].forEach((t,j)=>t.style.display=j===i?'':'none');
+  document.querySelectorAll('.side-l .tab').forEach((t,j)=>t.classList.toggle('on',j===i));
+}
+function rTab(i,el){
+  [G('RT0'),G('RT1')].forEach((t,j)=>t.style.display=j===i?'':'none');
+  document.querySelectorAll('.side-r .tab').forEach((t,j)=>t.classList.toggle('on',j===i));
+}
+
+/* ════════════════════════════════════════
+   UTILS
+════════════════════════════════════════ */
+function closeModal(id){G(id).classList.remove('show');}
+function escH(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// G is defined at the top of this script
+function toast(msg){
+  const t=G('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// Close modals on bg click
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('show');});
+});
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+['msgHeader','msgBody','msgFooter'].forEach(id=>{G(id).addEventListener('focus',()=>lastFocused=id);});
+STORE.load();
+renderClients();
+renderPresets();
+renderPersons();
+R();
+
+// Load a starter template if nothing saved
+if(!G('msgBody').value){
+  applyQT('meeting');
+}
+</script>
+</body>
+</html>
